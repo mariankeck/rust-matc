@@ -254,6 +254,7 @@ impl Controller {
         ses.session_id = parsed.responder_session_id;
         ses.my_session_id = ctx.session_id;
         ses.set_decrypt_key(&keypack[16..32]);
+        ses.reset_reception();
         ses.set_encrypt_key(&keypack[..16]);
 
         let mut local_node = Vec::new();
@@ -892,6 +893,7 @@ pub(crate) async fn auth_spake(connection: &dyn ConnectionTrait, pin: u32) -> Re
 
     session.set_encrypt_key(&ctx.encrypt_key.context("encrypt key missing")?);
     session.set_decrypt_key(&ctx.decrypt_key.context("decrypt key missing")?);
+    session.reset_reception();
     session.session_id = p_session as u16;
     log::debug!("auth_spake ok; session: {}", session.session_id);
     Ok(session)
@@ -998,6 +1000,7 @@ pub(crate) async fn auth_sigma(
     ses.session_id = ctx.responder_session;
     ses.my_session_id = ctx.session_id;
     ses.set_decrypt_key(&keypack[16..32]);
+    ses.reset_reception();
     ses.set_encrypt_key(&keypack[..16]);
 
     let mut local_node = Vec::new();

@@ -142,6 +142,12 @@ impl Session {
     /// Check an incoming message counter against this session's reception
     /// state. Must be called only after the message authenticated (decrypted
     /// successfully) so forged counters cannot poison the window.
+    /// The peer starts a fresh counter for the secured session, so the
+    /// replay window learned from the unsecured handshake must not carry over.
+    pub(crate) fn reset_reception(&self) {
+        self.reception_state.lock().unwrap().initialized = false;
+    }
+
     pub(crate) fn counter_is_new(&self, counter: u32) -> bool {
         self.reception_state.lock().unwrap().counter_is_new(counter)
     }

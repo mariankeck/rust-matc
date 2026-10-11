@@ -122,7 +122,13 @@ impl<'b> RetrContext<'b> {
                         return Err(anyhow::anyhow!("failed to receive initial message in reliable exchange: {:?}", e));
                     }
                 };
-                let decoded = messages::Message::decode(&resp)?;
+                let decoded = match messages::Message::decode(&resp) {
+                Ok(d) => d,
+                Err(e) => {
+                    log::debug!("dropping undecodable message {:?}", e);
+                    continue;
+                }
+            };
                 if decoded.protocol_header.protocol_id
                     == messages::ProtocolMessageHeader::PROTOCOL_ID_SECURE_CHANNEL
                     && decoded.protocol_header.opcode == messages::ProtocolMessageHeader::OPCODE_ACK
@@ -167,7 +173,13 @@ impl<'b> RetrContext<'b> {
                     continue;
                 }
             };
-            let decoded = messages::Message::decode(&resp)?;
+            let decoded = match messages::Message::decode(&resp) {
+                Ok(d) => d,
+                Err(e) => {
+                    log::debug!("dropping undecodable message {:?}", e);
+                    continue;
+                }
+            };
             log::trace!("received message {:?}", decoded);
 
             // apply ack - remove from retransmit buffer
